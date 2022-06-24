@@ -22,41 +22,24 @@ function Predio() {
 
     const acaoCadastrar = async e => {
         e.preventDefault();
-        if (editar){
-            try {
-                await fetch(`${process.env.REACT_APP_ENDERECO_API}/predios`, 
-                {
-                    method: "PUT", 
-                    headers: {"Content-Type":"application/json"},
-                    body : JSON.stringify(objeto)
-                }).then(response => response.json())
+        const metodo = editar ? "PUT" : "POST";
+        try {
+            await fetch(`${process.env.REACT_APP_ENDERECO_API}/predios`, {
+                method: metodo,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(objeto),
+            }).then(response => response.json())
                 .then(json => {
-                    setAlerta({status : json.status, message: json.message});
-                    if (json.status === "success"){
+                    setAlerta({ status: json.status, message: json.message });
+                    if (json.status === "success") {
                         setObjeto(json.objeto);
+                        if (!editar) {
+                            setEditar(true);
+                        }
                     }
-                })
-            } catch(err){
-                console.error(err.message);
-            }
-        } else {
-            try {
-                await fetch(`${process.env.REACT_APP_ENDERECO_API}/predios`, 
-                {
-                    method: "POST", 
-                    headers: {"Content-Type":"application/json"},
-                    body : JSON.stringify(objeto)
-                }).then(response => response.json())
-                .then(json => {
-                    setAlerta({status : json.status, message: json.message});
-                    if (json.status === "success"){
-                        setObjeto(json.objeto);
-                        setEditar(true);
-                    }
-                })
-            } catch(err){
-                console.error(err.message);
-            }
+                });
+        } catch (err) {
+            console.error(err.message);
         }
         recuperaPredios();
     }
@@ -64,9 +47,8 @@ function Predio() {
     const handleChange = (e) => {
         const name = e.target.name;
         const value = e.target.value;
-        setObjeto({...objeto, [name]: value});
+        setObjeto({ ...objeto, [name]: value });
     }
-
 
     const recuperaPredios = async () => {
         await fetch(`${process.env.REACT_APP_ENDERECO_API}/predios`)
@@ -98,12 +80,12 @@ function Predio() {
         <PredioContext.Provider
             value={{
                 alerta, setAlerta, listaObjetos, setListaObjetos,
-                recuperaPredios, remover, objeto, setObjeto, 
-                editar, setEditar, 
+                recuperaPredios, remover, objeto, setObjeto,
+                editar, setEditar,
                 recuperar, acaoCadastrar, handleChange
             }}>
             <Tabela />
-            <Form/>
+            <Form />
         </PredioContext.Provider>
     )
 
