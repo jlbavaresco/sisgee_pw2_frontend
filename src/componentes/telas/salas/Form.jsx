@@ -2,6 +2,7 @@ import { useContext } from "react";
 import Alerta from "../../Alerta";
 import SalaContext from "./SalaContext";
 import CampoEntrada from "../../comuns/CampoEntrada";
+import CampoSelect from "../../comuns/CampoSelect";
 import Dialogo from "../../comuns/Dialogo";
 
 function Form() {
@@ -66,36 +67,17 @@ function Form() {
                 msgvalido="Campo informado corretamente"
                 msginvalido="Valor inválido"
                 maximocaracteres={4} />
-            <div className="form-group">
-                <label htmlFor="selectPredio" className="form-label">
-                    Prédio
-                </label>
-                <select
-                    required
-                    className="form-control"
-                    id="selectPredio"
-                    name="predio"
-                    value={objeto.predio}
-                    onChange={handleChange}>
-                    <option disabled="true" value="">
-                        (Selecione o prédio)
+            <CampoSelect value={objeto.predio}
+                id="txtPredio" name="predio" label="Prédio"
+                onchange={handleChange}
+                msgvalido="OK certo" msginvalido="Informe o prédio"
+                requerido={true}>
+                {listaPredios.map((pre) => (
+                    <option key={pre.codigo} value={pre.codigo}>
+                        {pre.nome}
                     </option>
-                    {
-                        listaPredios.map( (predio) => (
-                            <option key={predio.codigo} 
-                            value={predio.codigo}>
-                                {predio.nome}
-                            </option>
-                        ))
-                    }
-                </select>
-                <div className="valid-feedback">
-                    Campo informado corretamente
-                </div>
-                <div className="invalid-feedback">
-                    Selecione o prédio
-                </div>
-            </div>
+                ))}
+            </CampoSelect>
         </Dialogo>
 
     )
