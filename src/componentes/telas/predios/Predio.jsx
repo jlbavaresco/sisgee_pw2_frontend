@@ -7,8 +7,7 @@ import Autenticacao from "../../seg/Autenticacao";
 import { useNavigate } from 'react-router-dom';
 
 function Predio() {
-
-    const token = Autenticacao.pegaAutenticacao().token;
+    
     let navigate = useNavigate();
 
     const [alerta, setAlerta] = useState({ status: "", message: "" });
@@ -20,26 +19,27 @@ function Predio() {
     });
 
     const recuperar = async codigo => {
-        await fetch(`${process.env.REACT_APP_ENDERECO_API}/predios/${codigo}`,
-            {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "x-access-token": token
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                }
-                throw new Error('Erro código: ' + response.status)
-            })
-            .then(data => setObjeto(data))
-            .catch(err => {
-                console.log(err);
-                window.location.reload();                
-                navigate("/login", { replace: true });
-            })
+        try {
+            await fetch(`${process.env.REACT_APP_ENDERECO_API}/predios/${codigo}`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-access-token": Autenticacao.pegaAutenticacao().token
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Erro código: ' + response.status)
+                })
+                .then(data => setObjeto(data))
+        } catch (err) {
+            console.log(err);
+            window.location.reload();
+            navigate("/login", { replace: true });
+        }
     }
 
     const acaoCadastrar = async e => {
@@ -50,7 +50,7 @@ function Predio() {
                 method: metodo,
                 headers: {
                     "Content-Type": "application/json",
-                    "x-access-token": token
+                    "x-access-token": Autenticacao.pegaAutenticacao().token
                 },
                 body: JSON.stringify(objeto),
             }).then(response => {
@@ -83,12 +83,13 @@ function Predio() {
     }
 
     const recuperaPredios = async () => {
+        try {
         await fetch(`${process.env.REACT_APP_ENDERECO_API}/predios`,
             {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "x-access-token": token
+                    "x-access-token": Autenticacao.pegaAutenticacao().token
                 }
             })
             .then(response => {
@@ -97,12 +98,12 @@ function Predio() {
                 }
                 throw new Error('Erro código: ' + response.status)
             })
-            .then(data => setListaObjetos(data))
-            .catch(err => {
-                console.log(err);
-                window.location.reload();
-                navigate("/login", { replace: true });
-            })
+            .then(data => setListaObjetos(data))            
+        }catch (err) {
+            console.log(err);
+            window.location.reload();
+            navigate("/login", { replace: true });
+        }
     }
 
     const remover = async objeto => {
@@ -114,14 +115,16 @@ function Predio() {
                             method: "DELETE",
                             headers: {
                                 "Content-Type": "application/json",
-                                "x-access-token": token
+                                "x-access-token": Autenticacao.pegaAutenticacao().token
                             }
                         })
                         .then(response => response.json())
                         .then(json => setAlerta({ status: json.status, message: json.message }))
                 recuperaPredios();
             } catch (err) {
-                console.log("Erro: " + err)
+                console.log(err);
+                window.location.reload();
+                navigate("/login", { replace: true });
             }
         }
     }
