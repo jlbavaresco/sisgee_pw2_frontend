@@ -1,6 +1,6 @@
 const Home = () => (
     <div>
-        <h1>Salas de aulas PWA</h1>
+        <h1>Salas de aulas PWA - Teste update</h1>
     </div>
 );
 
