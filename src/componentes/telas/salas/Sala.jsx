@@ -2,23 +2,45 @@ import { useState, useEffect } from "react";
 import Form from "./Form";
 import SalaContext from "./SalaContext";
 import Tabela from "./Tabela";
+import WithAuth from "../../seg/WithAuth";
+import Autenticacao from "../../seg/Autenticacao";
+import { useNavigate } from 'react-router-dom';
 
 function Predio() {
+
+    const token = Autenticacao.pegaAutenticacao().token;
+    let navigate = useNavigate();
 
     const [alerta, setAlerta] = useState({ status: "", message: "" });
     const [listaObjetos, setListaObjetos] = useState([]);
     const [editar, setEditar] = useState(false);
     const [objeto, setObjeto] = useState({
         codigo: "", numero: "",
-         descricao: "", capacidade: "", predio : ""
+        descricao: "", capacidade: "", predio: ""
     });
     const [listaPredios, setListaPredios] = useState([]);
 
     const recuperar = async codigo => {
-        await fetch(`${process.env.REACT_APP_ENDERECO_API}/salas/${codigo}`)
-            .then(response => response.json())
+        await fetch(`${process.env.REACT_APP_ENDERECO_API}/salas/${codigo}`,
+            {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-access-token": token
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Erro código: ' + response.status)
+            })
             .then(data => setObjeto(data))
-            .catch(err => console.log('Erro: ' + err))
+            .catch(err => {
+                console.log(err);
+                window.location.reload();
+                navigate("/login", { replace: true });
+            })
     }
 
     const acaoCadastrar = async e => {
@@ -27,9 +49,17 @@ function Predio() {
         try {
             await fetch(`${process.env.REACT_APP_ENDERECO_API}/salas`, {
                 method: metodo,
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-access-token": token
+                },
                 body: JSON.stringify(objeto),
-            }).then(response => response.json())
+            }).then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Erro código: ' + response.status)
+            })
                 .then(json => {
                     setAlerta({ status: json.status, message: json.message });
                     if (json.status === "success") {
@@ -40,7 +70,9 @@ function Predio() {
                     }
                 });
         } catch (err) {
-            console.error(err.message);
+            console.log(err);
+            window.location.reload();
+            navigate("/login", { replace: true });
         }
         recuperaSalas();
     }
@@ -52,25 +84,60 @@ function Predio() {
     }
 
     const recuperaPredios = async () => {
-        await fetch(`${process.env.REACT_APP_ENDERECO_API}/predios`)
-            .then(response => response.json())
+        await fetch(`${process.env.REACT_APP_ENDERECO_API}/predios`,
+            {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-access-token": token
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Erro código: ' + response.status)
+            })
             .then(data => setListaPredios(data))
-            .catch(err => console.log('Erro: ' + err))
+            .catch(err => {
+                console.log(err);
+                window.location.reload();
+                navigate("/login", { replace: true });
+            })
     }
 
     const recuperaSalas = async () => {
-        await fetch(`${process.env.REACT_APP_ENDERECO_API}/salas`)
-            .then(response => response.json())
+        await fetch(`${process.env.REACT_APP_ENDERECO_API}/salas`,
+            {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-access-token": token
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Erro código: ' + response.status)
+            })
             .then(data => setListaObjetos(data))
-            .catch(err => console.log('Erro: ' + err))
-    }    
+            .catch(err => {
+                console.log(err);
+                window.location.reload();
+                navigate("/login", { replace: true });
+            })
+    }
 
     const remover = async objeto => {
         if (window.confirm('Deseja remover este objeto?')) {
             try {
                 await
                     fetch(`${process.env.REACT_APP_ENDERECO_API}/salas/${objeto.codigo}`,
-                        { method: "DELETE" })
+                        {
+                            method: "DELETE",
+                            "x-access-token": token
+                        })
                         .then(response => response.json())
                         .then(json => setAlerta({ status: json.status, message: json.message }))
                 recuperaSalas();
@@ -100,4 +167,4 @@ function Predio() {
 
 }
 
-export default Predio;
+export default WithAuth(Predio);
